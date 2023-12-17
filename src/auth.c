@@ -33,6 +33,31 @@ void loginMenu(char a[50], char pass[50])
     }
 };
 
+void login(struct User *u)
+{
+    FILE *fp;
+    struct User userChecker;
+
+    if ((fp = fopen("./data/users.txt", "r")) == NULL)
+    {
+        printf("Error! opening file");
+        exit(1);
+    }
+
+    while (fscanf(fp, "%d %s %s\n", &userChecker.id, userChecker.name, userChecker.password) != EOF)
+    {
+        if (strcmp(userChecker.name, u->name) == 0)
+        {
+            fclose(fp);
+            u->id = userChecker.id;
+            strcpy(u->name, userChecker.name);
+            return;
+        }
+    }
+
+    fclose(fp);
+}
+
 const char *getPassword(struct User u)
 {
     FILE *fp;
@@ -44,7 +69,7 @@ const char *getPassword(struct User u)
         exit(1);
     }
 
-    while (fscanf(fp, "%s %s", userChecker.name, userChecker.password) != EOF)
+    while (fscanf(fp, "%d %s %s\n", &userChecker.id, userChecker.name, userChecker.password) != EOF)
     {
         if (strcmp(userChecker.name, u.name) == 0)
         {
@@ -95,7 +120,8 @@ void registerMenu(struct User *u)
     printf("\n\t\t\t\tCheck Password");
     scanf("%s", checkPassword);
 
-    if (strcmp(password, checkPassword) != 0) {
+    if (strcmp(password, checkPassword) != 0)
+    {
         printf("Passwords did not match\n");
         
         if (tcsetattr(fileno(stdin), TCSANOW, &oflags) != 0) {
@@ -104,13 +130,10 @@ void registerMenu(struct User *u)
       return exit(1);
     }
 
-    int newId = getNewId();
-
-    u->id = newId;
     strcpy(u->name, name);
     strcpy(u->password, password);
 
-    saveUserToFile(*u);
+    saveUserToFile(u);
 
     // restore terminal
     if (tcsetattr(fileno(stdin), TCSANOW, &oflags) != 0)
@@ -141,27 +164,10 @@ const int checkIfExists(char name[50])
     return 0;
 };
 
-void saveUserToFile(struct User u)
+void saveUserToFile(struct User *u)
 {
     FILE *fp;
-
-   // Open the file in append mode
-   fp = fopen("./data/users.txt", "a");
-   if (fp == NULL) {
-       printf("Error opening file.\n");
-       return;
-   }
-
-   // Write the user data to the file
-   fprintf(fp, "%d %s %s\n", u.id, u.name, u.password);
-
-   // Close the file
-   fclose(fp);
-};
-
-int getNewId()
-{
-    FILE *fp;
+    struct User userChecker;
 
     if ((fp = fopen("./data/users.txt", "r")) == NULL)
     {
@@ -169,14 +175,33 @@ int getNewId()
         exit(1);
     }
 
-   int count = 0;
-   char ch;
-   while ((ch = fgetc(fp)) != EOF) {
-       if (ch == '\n') {
-           count++;
-       }
-   }
+    int lastId;
+    int notEmpty;
+    while (fscanf(fp, "%d %s %s\n", &userChecker.id, userChecker.name, userChecker.password) != EOF)
+    {
+        notEmpty = 1;
+        lastId = userChecker.id; 
+    }
+    if (notEmpty == 1)
+    {
+        u->id = lastId+1;
+    } else {
+        u->id = 0;
+    }
 
-   fclose(fp);
-   return count;
-};
+    if ((fp = fopen("./data/users.txt", "a+")) == NULL)
+    {
+        printf("Error! opening file");
+        exit(1);
+    }
+
+    fseek(fp, -1, SEEK_END);
+    char lastChar = fgetc(fp);
+
+    if (lastChar != '\n')
+    {
+       fprintf(fp, "\n");
+    }
+    fprintf(fp, "%d %s %s\n", u->id, u->name, u->password);
+    fclose(fp);
+}

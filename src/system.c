@@ -1,4 +1,5 @@
 #include "header.h"
+#include <unistd.h>
 
 const char *RECORDS = "./data/records.txt";
 
@@ -6,8 +7,8 @@ int getAccountFromFile(FILE *ptr, char name[50], struct Record *r)
 {
     return fscanf(ptr, "%d %d %s %d %d/%d/%d %s %d %lf %s",
                   &r->id,
-		  &r->userId,
-		  name,
+                  &r->userId,
+                  name,
                   &r->accountNbr,
                   &r->deposit.month,
                   &r->deposit.day,
@@ -20,10 +21,10 @@ int getAccountFromFile(FILE *ptr, char name[50], struct Record *r)
 
 void saveAccountToFile(FILE *ptr, struct User u, struct Record r)
 {
-    fprintf(ptr, "%d %d %d %d %d/%d/%d %s %d %.2lf %s\n\n",
+    fprintf(ptr, "%d %d %s %d %d/%d/%d %s %d %.2lf %s\n\n",
             r.id,
 	        u.id,
-	        u.id,
+	        u.name,
             r.accountNbr,
             r.deposit.month,
             r.deposit.day,
@@ -114,9 +115,10 @@ noAccount:
 
     while (getAccountFromFile(pf, userName, &cr))
     {
+        r.id = cr.id + 1;
         if (strcmp(userName, u.name) == 0 && cr.accountNbr == r.accountNbr)
         {
-            printf("✖ This Account already exists for this user\n\n");
+            printf("✖ This Account already exists for this user");
             goto noAccount;
         }
     }
@@ -130,7 +132,7 @@ noAccount:
     scanf("%s", r.accountType);
 
     saveAccountToFile(pf, u, r);
-
+    
     fclose(pf);
     success(u);
 }
@@ -162,4 +164,77 @@ void checkAllAccounts(struct User u)
     }
     fclose(pf);
     success(u);
+}
+
+void updateAcc(struct User u)
+{
+
+noAccount:
+    system("clear");
+    printf("\t\t\t===== New record =====\n");
+    FILE *pf = fopen(RECORDS, "a+");
+    struct Record cr;
+    int accNum;
+    int found = 0;
+    
+
+    printf("\nEnter account number you want to change:");
+    scanf("%d", &accNum);
+
+    while (getAccountNumber(pf, &cr))
+    {
+        if (strcmp(u.name, cr.name) == 0 && cr.accountNbr == accNum)
+        {
+            found = 1;
+        }
+    }
+
+    if (found == 0)
+    {
+        printf("✖ Account number is not found");
+        goto noAccount;
+    }
+
+    char yes;
+    char country;
+    int phone;
+
+    printf("\nYou can change only phone number and country");
+    printf("\nDo you want to change country ? y/n");
+    scanf("%s", &yes);
+
+    if (yes == 'y')
+    {
+        printf("\nEnter country:");
+        scanf("%s", &country);
+    }
+
+    printf("\nDo you want to change phone number ? y/n");
+    scanf("%s", &yes);
+
+    if (yes == 'y')
+    {
+        printf("\nEnter country:");
+        scanf("%d", &phone);
+    }
+
+    printf("%s, %d", country, phone);
+
+    success(u);
+}
+
+int getAccountNumber(FILE *ptr, struct Record *r)
+{
+    return fscanf(ptr, "%d %d %s %d %d/%d/%d %s %d %lf %s",
+                  &r->id,
+                  &r->userId,
+                  r->name,
+                  &r->accountNbr,
+                  &r->deposit.month,
+                  &r->deposit.day,
+                  &r->deposit.year,
+                  r->country,
+                  &r->phone,
+                  &r->amount,
+                  r->accountType) != EOF;
 }
