@@ -51,5 +51,6 @@ void updateCountry(struct Record *cr, char *country);
 void updatePhone(struct Record *cr, int phone);
 void writeRecord(FILE *pf, struct Record *cr);
 int getAccountNumber(FILE *ptr, struct Record *r);
+void checkAccount(struct User u);
 
 void fail(struct User u);

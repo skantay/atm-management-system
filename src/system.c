@@ -190,6 +190,89 @@ void checkAllAccounts(struct User u)
     success(u);
 }
 
+void checkAccount(struct User u)
+{
+    FILE *pf = fopen(RECORDS, "r");
+    int accNum;
+    int found = 0;
+    struct Record cr;
+   
+    printf("\nEnter account number you want to change:");
+    scanf("%d", &accNum);
+
+    while (getAccountNumber(pf, &cr))
+    {
+        if (strcmp(u.name, cr.name) == 0)
+        {
+            if (cr.accountNbr == accNum)
+            {
+                found = 1;
+                break;
+            }
+        }
+    }
+    
+    fclose(pf);
+    FILE *pf2 = fopen(RECORDS, "r");
+    if (found == 0)
+    {
+       printf("✖ Account number is not found\n");
+       fail(u);
+    }    
+
+    char userName[100];
+    struct Record r;
+
+    system("clear");
+    printf("\t\t====== Account %d from user, %s =====\n\n", accNum, u.name);
+    while (getAccountFromFile(pf2, userName, &r))
+    {
+        if (strcmp(userName, u.name) == 0)
+        {
+            if (r.accountNbr == accNum)
+            {
+                printf("_____________________\n");
+                printf("\nAccount number:%d\nDeposit Date:%d/%d/%d \ncountry:%s \nPhone number:%d \nAmount deposited: $%.2f \nType Of Account:%s\n",
+                    r.accountNbr,
+                    r.deposit.day,
+                    r.deposit.month,
+                    r.deposit.year,
+                    r.country,
+                    r.phone,
+                    r.amount,
+                    r.accountType);
+
+                if (strcmp(r.accountType, "current") == 0)
+                {
+                    printf("\nYou will not get interests because the account is of type current\n");
+                } else if (strcmp(r.accountType, "saving") == 0)
+                {
+                    float interest = (r.amount * 0.07) / 12.00;
+                    printf("\n -> You will get %.2lf as interest on day %d of every month\n", interest, r.deposit.day);
+                } else if (strcmp(r.accountType, "fixed01") == 0)
+                {
+                    float interest = (r.amount * 0.04) / 12.00;
+                    printf("\n -> You will get %.2lf as interest on day %d of every month\n", interest, r.deposit.day);
+                } else if (strcmp(r.accountType, "fixed02") == 0)
+                {
+                    float interest = (r.amount * 0.05) / 24.00;
+                    printf("\n -> You will get %.2lf as interest on day %d of every month\n", interest, r.deposit.day);
+                } else if (strcmp(r.accountType, "fixed03") == 0)
+                {
+                    float interest = (r.amount * 0.05) / 36.00;
+                    printf("\n -> You will get %.2lf as interest on day %d of every month\n", interest, r.deposit.day);
+                } else 
+                {
+                    printf("Type account not found");
+                }
+                break;
+            }
+        }
+    }
+    fclose(pf2);
+    success(u);
+}
+
 void updateAcc(struct User u)
 {
    system("clear");
@@ -239,14 +322,8 @@ void updateAcc(struct User u)
    scanf(" %c", &changePhone);
    if (changePhone == 'y')
    {
-        char input[256];
-       printf("\nEnter number:");
-       if (sscanf(input, "%d", &phone) != 1)
-       {
-        printf("NON valid number!\n");
-        fail(u);
-       }
-
+       printf("\nEnter phone:");
+       scanf("%d", &phone);
        updatePhone(&cr, phone);
    }
 
