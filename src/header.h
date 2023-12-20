@@ -14,7 +14,7 @@ struct Record
     int userId;
     char name[100];
     char country[100];
-    int phone;
+    char phone[100];
     char accountType[10];
     int accountNbr;
     double amount;
@@ -48,9 +48,20 @@ void checkAllAccounts(struct User u);
 // updating function
 void updateAcc(struct User u);
 void updateCountry(struct Record *cr, char *country);
-void updatePhone(struct Record *cr, int phone);
+void updatePhone(struct Record *cr, char *phone);
 void writeRecord(FILE *pf, struct Record *cr);
 int getAccountNumber(FILE *ptr, struct Record *r);
 void checkAccount(struct User u);
+void transaction(struct User u);
+
+void writeRecordNumber(FILE *pf, struct Record *cr);
+int withdraw(struct Record *cr);
+void deposit(struct Record *cr);
+
+void deleteAccount(struct User u);
+void deleteAccountRecord(FILE *pf, struct Record *cr);
+
+void transferAccount(struct User u);
+void writeRecordTransfer(FILE *pf, struct Record *cr, char userName[100], int id);
 
 void fail(struct User u);
