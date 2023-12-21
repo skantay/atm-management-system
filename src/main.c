@@ -97,11 +97,12 @@ void initMenu(struct User *u)
             r = 1;
             break;
         case 3:
-            // Exit function
+            printf("See you soon!\n");
             exit(1);
             break;
         default:
-            printf("Insert a valid operation!\n");
+            printf("Invalid input!\n\nKilling the session x_X\n");
+            exit(1);
         }
     }
 };

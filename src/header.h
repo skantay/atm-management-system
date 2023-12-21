@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 struct Date
 {
@@ -64,4 +65,7 @@ void deleteAccountRecord(FILE *pf, struct Record *cr);
 void transferAccount(struct User u);
 void writeRecordTransfer(FILE *pf, struct Record *cr, char userName[100], int id);
 
+int checkTransferId(struct Record *cr);
+bool isIDInArray(int ids[], int numIds, int id);
+int generateNewID(int ids[], int numIds);
 void fail(struct User u);

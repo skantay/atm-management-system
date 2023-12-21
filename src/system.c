@@ -78,15 +78,19 @@ void stayOrReturn(int notGood, void f(struct User u), struct User u)
 void success(struct User u)
 {
 
-    char optionStr[50];
+   char optionStr[50];
     int option;
     do {
         printf("\nEnter 1 to go to the main menu and 0 to exit!\n");
         fgets(optionStr, sizeof(optionStr), stdin); // read the input as a string
         if(sscanf(optionStr, "%d", &option) != 1) {
             printf("Invalid input, please enter again.\n");
+            continue;
         }
-    } while(sscanf(optionStr, "%d", &option) != 1);
+        if(option != 1 && option != 0) {
+            printf("Invalid input, please enter again.\n");
+        }
+    } while(option != 1 && option != 0);
 
     system("clear");
     if (option == 1)
@@ -96,10 +100,6 @@ void success(struct User u)
     else if (option == 0)
     {
     exit(1);
-    }
-    else
-    {
-    printf("Insert a valid operation!\n");
     }
 }
 
@@ -113,8 +113,12 @@ void fail(struct User u)
         fgets(optionStr, sizeof(optionStr), stdin); // read the input as a string
         if(sscanf(optionStr, "%d", &option) != 1) {
             printf("Invalid input, please enter again.\n");
+            continue;
         }
-    } while(sscanf(optionStr, "%d", &option) != 1);
+        if(option != 1 && option != 0) {
+            printf("Invalid input, please enter again.\n");
+        }
+    } while(option != 1 && option != 0);
 
     system("clear");
     if (option == 1)
@@ -124,10 +128,6 @@ void fail(struct User u)
     else if (option == 0)
     {
     exit(1);
-    }
-    else
-    {
-    printf("Insert a valid operation!\n");
     }
 }
 
@@ -232,6 +232,8 @@ void checkAllAccounts(struct User u)
                    r.accountType);
         }
     }
+    printf("\nPress enter to continue\n");
+    while ((c = getchar()) != '\n' && c != EOF) { }
     fclose(pf);
     success(u);
 }
@@ -313,7 +315,7 @@ void checkAccount(struct User u)
                     printf("\n -> You will get %.2lf as interest on day %d of every month\n", interest, r.deposit.day);
                 } else 
                 {
-                    printf("Type account not found");
+                    printf("\nType of an account is not found\n");
                 }
                 break;
             }
@@ -337,8 +339,8 @@ void transaction(struct User u)
     int accNum;
 
     if (scanf("%d", &accNum) != 1) {
-        printf("Invalid input for amount\n");
-        return;
+        printf("Invalid input\n");
+        fail(u);
     }
 
     while (getAccountNumber(pf, &cr))
@@ -366,12 +368,14 @@ void transaction(struct User u)
     if (found == 0)
     {
        printf("✖ Account number is not found\n");
+       while ((c = getchar()) != '\n' && c != EOF) { }
        fail(u);
     }    
 
     if (found == -1)
     {
        printf("✖ Accounts of type fixed are not allowed to make transactions \n");
+       while ((c = getchar()) != '\n' && c != EOF) { }
        fail(u);
     } 
 
@@ -395,21 +399,26 @@ void transaction(struct User u)
                 if (trans == 1)
                 {
                     deposit(&cr);
+                    printf("\nSuccess !\n");
                     break;
                 }
 
                 if (trans == 2)
                 {
-                    if (withdraw(&cr) == -1)
+                    int isIf = withdraw(&cr);
+                    if (isIf == -1)
                     {
-                        printf("\nnot sufficient funds");
+                        printf("\nnot sufficient funds\n");
+                        while ((c = getchar()) != '\n' && c != EOF) { }
                         break;
                     }
 
-                    if (withdraw(&cr) == 1)
+                    if (isIf == 1)
                     {
+                        while ((c = getchar()) != '\n' && c != EOF) { }
                         break;
                     }
+                    printf("\nSuccess !\n");
                     break;
                 }
 
@@ -423,8 +432,6 @@ void transaction(struct User u)
 
 void deposit(struct Record *cr)
 {   
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF) { }
 
     FILE *pf = fopen(RECORDS, "r+");
     if (pf == NULL)
@@ -464,7 +471,7 @@ int withdraw(struct Record *cr)
 
     printf("\nEnter the amount you want to withdraw: ");
      if (scanf("%f", &amount) != 1) {
-        printf("Invalid input for amount\n");
+        printf("\ninvalid input for amount\n");
         return 1;
     }
 
@@ -561,8 +568,8 @@ void writeRecordNumber(FILE *pf, struct Record *cr)
 
 void updateAcc(struct User u)
 {
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF) { }
+   int c;
+   while ((c = getchar()) != '\n' && c != EOF) { }
    system("clear");
    printf("\t\t\t===== Update record =====\n");
    FILE *pf = fopen(RECORDS, "a+");
@@ -745,6 +752,7 @@ void deleteAccount(struct User u)
 {
     int c;
     while ((c = getchar()) != '\n' && c != EOF) { }
+
     FILE *pf = fopen(RECORDS, "r");
     int accNum;
     int found = 0;
@@ -770,10 +778,13 @@ void deleteAccount(struct User u)
     if (found == 0)
     {
        printf("✖ Account number is not found\n");
+       while ((c = getchar()) != '\n' && c != EOF) { }
        fail(u);
     }    
 
     deleteAccountRecord(pf2, &cr);
+
+    printf("\nSuccess\n");
     
     fclose(pf2);
     success(u);
@@ -872,7 +883,8 @@ void transferAccount(struct User u)
 
     if (found == 0)
     {
-       printf("✖ Account number is not found\n");
+       printf("\n✖ Account number is not found\n");
+       while ((c = getchar()) != '\n' && c != EOF) { }
        fail(u);
     }    
 
@@ -898,8 +910,9 @@ void transferAccount(struct User u)
     FILE *pf2 = fopen(RECORDS, "r+");
     if (found2 == 0)
     {
-        printf("user not found\n");
-        return;
+        printf("\nuser not found\n");
+        while ((c = getchar()) != '\n' && c != EOF) { }
+        fail(u);
     }
     
     writeRecordTransfer(pf2, &cr, userName, to.userId);
@@ -917,7 +930,7 @@ void writeRecordTransfer(FILE *pf, struct Record *cr, char userName[100], int id
         perror("Error opening temporary file");
         exit(EXIT_FAILURE);
     }
-
+    int newId;
     struct Record temp;
     while (fscanf(pf, "%d %d %s %d %d/%d/%d %s %s %lf %s",
                   &temp.id,
@@ -935,12 +948,16 @@ void writeRecordTransfer(FILE *pf, struct Record *cr, char userName[100], int id
 
         if ((strcmp(temp.name, cr->name) == 0) && temp.accountNbr == cr->accountNbr)
         {
+            if (cr->accountNbr == temp.accountNbr)
+            {
+                newId = checkTransferId(cr);
+            }
             // Update the existing record
             fprintf(tempFile, "%d %d %s %d %d/%d/%d %s %s %.2lf %s\n\n",
                     cr->id,
                     id,
                     userName,
-                    cr->accountNbr,
+                    newId,
                     cr->deposit.month,
                     cr->deposit.day,
                     cr->deposit.year,
@@ -983,4 +1000,46 @@ void writeRecordTransfer(FILE *pf, struct Record *cr, char userName[100], int id
         perror("Error renaming the temporary file");
         exit(EXIT_FAILURE);
     }
+}
+
+int checkTransferId(struct Record *cr)
+{
+  char userName[100];
+  struct Record r;
+  FILE *pf = fopen(RECORDS, "r");
+  int ids[100];
+  int newID;
+  int index = 0;
+  
+  while (getAccountFromFile(pf, userName, &r))
+  {
+      if (strcmp(userName, cr->name) == 0)
+      {
+          ids[index] = r.accountNbr;
+          index++;
+      }
+  }
+  
+  fclose(pf); 
+  newID = generateNewID(ids, index);
+  return newID;
+}
+
+bool isIDInArray(int ids[], int numIds, int id)
+{
+   for (int i = 0; i < numIds; i++) {
+       if (ids[i] == id) {
+           return true;
+       }
+   }
+   return false;
+}
+
+int generateNewID(int ids[], int numIds)
+{
+   int newID = 1;
+   while (isIDInArray(ids, numIds, newID)) {
+       newID++;
+   }
+   return newID;
 }
